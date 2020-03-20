@@ -7,7 +7,7 @@ const express = require('express'),
     require('dotenv').config();//.env
 
 const PORT = process.env.PORT;
-const VERIFY_TOKEN = rocess.env.VERIFY_TOKEN;
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 
 // Creates the endpoint for our webhook 
 app.post('/webhook', (req, res) => {

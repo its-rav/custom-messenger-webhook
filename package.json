@@ -1,6 +1,10 @@
 {
   "name": "messenger-webhook",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.14.0",
+    "npm": "6.14.2"
+  },
   "description": "Custom messenger webhook",
   "main": "src/index.js",
   "dependencies": {
@@ -13,7 +17,7 @@
   },
   "scripts": {
     "build": "npm install",
-  "start": "node src/index.js"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
