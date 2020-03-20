@@ -12,7 +12,8 @@
     "nodemon": "^2.0.2"
   },
   "scripts": {
-    "test": "node src/index.js"
+    "build": "npm install",
+  "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
