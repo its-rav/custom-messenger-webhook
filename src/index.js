@@ -5,7 +5,8 @@ require('dotenv').config();//.env
 const express = require('express'),
     bodyParser = require('body-parser'),
     app = express().use(bodyParser.json()),
-    https = require('https');
+    https = require('https'),
+    cheerio = require('cheerio');
 
 const { fetchData } = require('./ncovid-crawler')
 const PORT = process.env.PORT;

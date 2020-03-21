@@ -1,7 +1,6 @@
 // main.js
 
 const axios = require('axios');
-const cheerio = require('cheerio');
 const url = "https://ncov.moh.gov.vn/";
 
 const fetchData = async () => {
@@ -16,4 +15,4 @@ const fetchData = async () => {
     return response;
 }
 
-module.exports = fetchData;
+module.exports = { fetchData };
