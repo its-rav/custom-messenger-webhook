@@ -200,14 +200,21 @@ const handlePostback = async (sender_psid, received_postback) => {
         await fetchData().then((res) => {
             const html = res.data;
             const $ = cheerio.load(html);
-            const infected = $('#VN-01');
-            const dead = $('#VN-02');
-            const suspicious = $('#VN-03');
-            const recovered = $('#VN-04');
-            const negativeCases = $('#VN-05');
-            console.log(`${infected}-${dead}-${suspicious}-${recovered}-${negativeCases}`)
+            const infected = $('#VN-01').html();
+            const dead = $('#VN-02').html();
+            const suspicious = $('#VN-03').html();
+            const recovered = $('#VN-04').html();
+            const negativeCases = $('#VN-05').html();
+
+            const msg=`Infected: ${infected}
+            Dead: ${dead}
+            suspicious: ${suspicious}
+            Recoverd: ${recovered}
+            negativeCases: ${negativeCases}`;
+
+            console.log(msg)
             response = {
-                "text": `${infected}-${dead}-${suspicious}-${recovered}-${negativeCases}`
+                "text": msg
             }
         })
     }
