@@ -202,23 +202,23 @@ const handlePostback = async (sender_psid, received_postback) => {
             // const $ = cheerio.load(html);
 
             const infected = findInfo(html,
-                /<p><span class="font24 text-danger2">(.*)<\/span>/,
+                /<p><span class="font24 text-danger2">(.*)<\/span>/gm,
                 '<p><span class="font24 text-danger2">',
                 '</span>'
             )
             const recovered = findInfo(html,
-                regex = /<span style="font-size:28px;">(.*)<\/span>/gm,
+                /<span style="font-size:28px;">(.*)<\/span>/gm,
                 '<span style="font-size:28px;">',
-                '</span>'
+                '</span>:</span>'
             )
             const dead = findInfo(html,
-                regex = /&nbsp; &nbsp; (\d*)<\/span>/gm,
+                /&nbsp; &nbsp; (\d*)<\/span>/gm,
                 '&nbsp; &nbsp; ',
                 '</span>'
             )
 
             response = {
-                "text": `${infected}-${dead}-${dead}`
+                "text": `Infected: ${infected}\nDead: ${dead}\nRecoverd: ${recovered}`
             }
         })
     }
