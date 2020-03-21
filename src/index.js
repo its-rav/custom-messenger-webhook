@@ -13,7 +13,7 @@ const PORT = process.env.PORT;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
-app.post('/api/ncovid', async (req, response) => {
+app.get('/api/ncovid', async (req, response) => {
     await fetchData().then((res) => {
         const html = res.data;
         // const $ = cheerio.load(html);
