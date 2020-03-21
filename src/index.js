@@ -13,6 +13,35 @@ const PORT = process.env.PORT;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
 
+app.post('/api/ncovid', async (req, response) => {
+    await fetchData().then((res) => {
+        const html = res.data;
+        // const $ = cheerio.load(html);
+
+        const infected = findInfo(html,
+            /<p><span class="font24 text-danger2">(.*)<\/span>/gm,
+            '<p><span class="font24 text-danger2">',
+            '</span>'
+        )
+        const recovered = findInfo(html,
+            /<span style="font-size:28px;">(.*)<\/span>/gm,
+            '<span style="font-size:28px;">',
+            '</span>:</span>'
+        )
+        const dead = findInfo(html,
+            /&nbsp; &nbsp; (\d*)<\/span>/gm,
+            '&nbsp; &nbsp; ',
+            '</span>'
+        )
+
+        response.json({
+            infected,
+            dead,
+            recovered
+        })
+    })
+})
+
 // Creates the endpoint for our webhook 
 app.post('/webhook', (req, res) => {
     let body = req.body;
