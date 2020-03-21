@@ -199,27 +199,38 @@ const handlePostback = async (sender_psid, received_postback) => {
     } else if (payload === 'ncovid-statisics-vi') {
         await fetchData().then((res) => {
             const html = res.data;
-            const $ = cheerio.load(html);
-            const infected = $('#VN-01').html();
-            const dead = $('#VN-02').html();
-            const suspicious = $('#VN-03').html();
-            const recovered = $('#VN-04').html();
-            const negativeCases = $('#VN-05').html();
+            // const $ = cheerio.load(html);
 
-            const msg=`Infected: ${infected}
-            Dead: ${dead}
-            suspicious: ${suspicious}
-            Recoverd: ${recovered}
-            negativeCases: ${negativeCases}`;
+            const infected = findInfo(html,
+                regex = /<p><span class="font24 text-danger2">(.*)<\/span>/,
+                firstStr = '<p><span class="font24 text-danger2">',
+                lastStr = '</span>'
+            )
+            const recovered = findInfo(html,
+                regex = /<span style="font-size:28px;">(.*)<\/span>/gm,
+                firstStr = '<span style="font-size:28px;">',
+                lastStr = '</span>'
+            )
+            const dead = findInfo(html,
+                regex = /&nbsp; &nbsp; (\d*)<\/span>/gm,
+                firstStr = '&nbsp; &nbsp; ',
+                lastStr = '</span>'
+            )
 
-            console.log(msg)
             response = {
-                "text": msg
+                "text": `${infected}-${dead}-${dead}`
             }
         })
     }
     // Send the message to acknowledge the postback
     callSendAPI(sender_psid, response);
+}
+
+const findInfo = (html, regex, firstStr, lastStr) => {
+    const rs = html.match(regex)[0];
+    const infected = rs.replace(firstStr, "").replace(lastStr, "")
+
+    return infected
 }
 
 // Adds support for GET requests to our webhook
