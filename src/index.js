@@ -56,19 +56,21 @@ const callSendAPI = (sender_psid, response) => {
         "message": response
     }
     let uri = "https://graph.facebook.com/v2.6/me/messages";
-    // Send the HTTP request to the Messenger Platform
-    // request({
-    //     uri,
-    //     "qs": { "access_token": PAGE_ACCESS_TOKEN },
-    //     "method": "POST",
-    //     "json": request_body
-    // }, (err, res, body) => {
-    //     if (!err) {
-    //         console.log('message sent!')
-    //     } else {
-    //         console.error("Unable to send message:" + err);
-    //     }
-    // });
+    /*
+    Send the HTTP request to the Messenger Platform
+    request({
+        uri,
+        "qs": { "access_token": PAGE_ACCESS_TOKEN },
+        "method": "POST",
+        "json": request_body
+    }, (err, res, body) => {
+        if (!err) {
+            console.log('message sent!')
+        } else {
+            console.error("Unable to send message:" + err);
+        }
+    }); 
+    */
     let jsonObject = JSON.stringify(request_body);
     let postHeaders = {
         'Content-Type': 'application/json',
@@ -82,7 +84,7 @@ const callSendAPI = (sender_psid, response) => {
         headers: postHeaders
     };
 
-    const reqPost = https.request(postOptions,  (res)=> {
+    const reqPost = https.request(postOptions, (res) => {
         console.log("statusCode: ", res.statusCode);
         // uncomment it for header details
         //  console.log("headers: ", res.headers);
@@ -152,10 +154,51 @@ const handlePostback = (sender_psid, received_postback) => {
     let payload = received_postback.payload;
 
     // Set the response based on the postback payload
-    if (payload === 'yes') {
-        response = { "text": "Thanks!" }
-    } else if (payload === 'no') {
-        response = { "text": "Oops, try sending another image." }
+    if (payload === 'started') {
+        response = {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "generic",
+                    "elements": [{
+                        "title": "Welcome to my app",
+                        "subtitle": "Choose an option.",
+                        "buttons": [
+                            {
+                                "type": "postback",
+                                "title": "Ncovid statistics",
+                                "payload": "ncovid-statisics",
+                            }
+                        ],
+                    }]
+                }
+            }
+        }
+
+    } else if (payload === 'ncovid-statisics') {
+        response = {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "generic",
+                    "elements": [{
+                        "title": "Choose a location",
+                        "subtitle": "Choose an option.",
+                        "buttons": [
+                            {
+                                "type": "postback",
+                                "title": "Viet Nam",
+                                "payload": "ncovid-statisics-vi",
+                            }
+                        ],
+                    }]
+                }
+            }
+        }
+    } else if (payload === 'ncovid-statisics-vi') {
+        response = {
+            "text": `Viet name has ... case.`
+        }
     }
     // Send the message to acknowledge the postback
     callSendAPI(sender_psid, response);
