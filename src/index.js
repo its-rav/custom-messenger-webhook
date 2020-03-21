@@ -7,7 +7,7 @@ const express = require('express'),
     app = express().use(bodyParser.json()),
     https = require('https');
 
-
+const { fetchData } = require('./ncovid-crawler')
 const PORT = process.env.PORT;
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
@@ -147,14 +147,14 @@ const handleMessage = (sender_psid, received_message) => {
     callSendAPI(sender_psid, response);
 }
 
-const handlePostback = (sender_psid, received_postback) => {
+const handlePostback = async (sender_psid, received_postback) => {
     let response;
 
     // Get the payload for the postback
     let payload = received_postback.payload;
 
     // Set the response based on the postback payload
-    if (payload === 'started') {
+    if (payload === 'GET_STARTED_PAYLOAD') {
         response = {
             "attachment": {
                 "type": "template",
@@ -196,9 +196,19 @@ const handlePostback = (sender_psid, received_postback) => {
             }
         }
     } else if (payload === 'ncovid-statisics-vi') {
-        response = {
-            "text": `Viet name has ... case.`
-        }
+        await fetchData(url).then((res) => {
+            const html = res.data;
+            const $ = cheerio.load(html);
+            const infected = $('#VN-01');
+            const dead = $('#VN-02');
+            const suspicious = $('#VN-03');
+            const recovered = $('#VN-04');
+            const negativeCases = $('#VN-05');
+            console.log(`${infected}-${dead}-${suspicious}-${recovered}-${negativeCases}`)
+            response = {
+                "text": `${infected}-${dead}-${suspicious}-${recovered}-${negativeCases}`
+            }
+        })
     }
     // Send the message to acknowledge the postback
     callSendAPI(sender_psid, response);
