@@ -5,7 +5,7 @@ require('dotenv').config();//.env
 const express = require('express'),
     bodyParser = require('body-parser'),
     app = express().use(bodyParser.json()),
-    request = require('request'); // creates express http server
+    puppeteer = require('puppeteer');
 
 
 const PORT = process.env.PORT;
@@ -47,7 +47,7 @@ app.post('/webhook', (req, res) => {
 
 });
 
-const callSendAPI=(sender_psid, response)=> {
+const callSendAPI = (sender_psid, response) => {
     // Construct the message body
     let request_body = {
         "recipient": {
@@ -55,19 +55,51 @@ const callSendAPI=(sender_psid, response)=> {
         },
         "message": response
     }
+    let uri = "https://graph.facebook.com/v2.6/me/messages";
     // Send the HTTP request to the Messenger Platform
-    request({
-        "uri": "https://graph.facebook.com/v2.6/me/messages",
-        "qs": { "access_token": PAGE_ACCESS_TOKEN },
-        "method": "POST",
-        "json": request_body
-    }, (err, res, body) => {
-        if (!err) {
-            console.log('message sent!')
-        } else {
-            console.error("Unable to send message:" + err);
-        }
-    });
+    // request({
+    //     uri,
+    //     "qs": { "access_token": PAGE_ACCESS_TOKEN },
+    //     "method": "POST",
+    //     "json": request_body
+    // }, (err, res, body) => {
+    //     if (!err) {
+    //         console.log('message sent!')
+    //     } else {
+    //         console.error("Unable to send message:" + err);
+    //     }
+    // });
+    (async () => {
+        // Create browser instance, and give it a first tab
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+
+        // Allows you to intercept a request; must appear before
+        // your first page.goto()
+        await page.setRequestInterception(true);
+
+        // Request intercept handler... will be triggered with 
+        // each page.goto() statement
+        page.on('request', interceptedRequest => {
+            // Here, is where you change the request method and 
+            // add your post data
+            var data = {
+                'method': 'POST',
+                'postData': request_body
+            };
+
+            // Request modified... finish sending! 
+            interceptedRequest.continue(data);
+        });
+
+        // Navigate, trigger the intercept, and resolve the response
+        const response = await page.goto(`${uri}?access_token=${PAGE_ACCESS_TOKEN}`);
+        const responseBody = await response.text();
+        console.log(responseBody);
+
+        // Close the browser - done! 
+        await browser.close();
+    })();
 }
 
 const handleMessage = (sender_psid, received_message) => {
