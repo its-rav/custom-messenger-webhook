@@ -196,7 +196,7 @@ const handlePostback = async (sender_psid, received_postback) => {
             }
         }
     } else if (payload === 'ncovid-statisics-vi') {
-        await fetchData(url).then((res) => {
+        await fetchData().then((res) => {
             const html = res.data;
             const $ = cheerio.load(html);
             const infected = $('#VN-01');
