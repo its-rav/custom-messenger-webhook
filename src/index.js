@@ -5,7 +5,7 @@ require('dotenv').config();//.env
 const express = require('express'),
     bodyParser = require('body-parser'),
     app = express().use(bodyParser.json()),
-    puppeteer = require('puppeteer');
+    https = require('https');
 
 
 const PORT = process.env.PORT;
@@ -69,37 +69,36 @@ const callSendAPI = (sender_psid, response) => {
     //         console.error("Unable to send message:" + err);
     //     }
     // });
-    (async () => {
-        // Create browser instance, and give it a first tab
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
+    let jsonObject = JSON.stringify(request_body);
+    let postHeaders = {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(jsonObject, 'utf8')
+    };
+    // the post options
+    let postOptions = {
+        host: 'graph.facebook.com',
+        path: `/v2.6/me/messages?access_token=${PAGE_ACCESS_TOKEN}`,
+        method: 'POST',
+        headers: postHeaders
+    };
 
-        // Allows you to intercept a request; must appear before
-        // your first page.goto()
-        await page.setRequestInterception(true);
+    const reqPost = https.request(postOptions,  (res)=> {
+        console.log("statusCode: ", res.statusCode);
+        // uncomment it for header details
+        //  console.log("headers: ", res.headers);
 
-        // Request intercept handler... will be triggered with 
-        // each page.goto() statement
-        page.on('request', interceptedRequest => {
-            // Here, is where you change the request method and 
-            // add your post data
-            var data = {
-                'method': 'POST',
-                'postData': request_body
-            };
-
-            // Request modified... finish sending! 
-            interceptedRequest.continue(data);
+        res.on('data', function (d) {
+            console.info('POST result:\n');
+            process.stdout.write(d);
+            console.info('\n\nPOST completed');
         });
-
-        // Navigate, trigger the intercept, and resolve the response
-        const response = await page.goto(`${uri}?access_token=${PAGE_ACCESS_TOKEN}`);
-        const responseBody = await response.text();
-        console.log(responseBody);
-
-        // Close the browser - done! 
-        await browser.close();
-    })();
+    });
+    // write the json data
+    reqPost.write(jsonObject);
+    reqPost.end();
+    reqPost.on('error', function (e) {
+        console.error(e);
+    });
 }
 
 const handleMessage = (sender_psid, received_message) => {
